@@ -1,0 +1,26 @@
+---
+import Layout from '../layouts/Layout.astro';
+import GameCard from '../components/GameCard.astro';
+import { games } from '../lib/games';
+import { SITE_NAME } from '../lib/seo';
+
+const trending = games.filter((g) => g.is_trending);
+---
+
+<Layout
+	title={SITE_NAME}
+	description="Discover trending Android games — download free APKs, browse by category, and find your next favorite game."
+	path="/"
+>
+	<main class="ug-container ug-home">
+		<div class="ug-home__section">
+			{trending.length > 0 ? (
+				<div class="ug-game-grid">
+					{trending.map((game, i) => <GameCard game={game} rank={i + 1} />)}
+				</div>
+			) : (
+				<p>No trending games yet. Check back soon.</p>
+			)}
+		</div>
+	</main>
+</Layout>

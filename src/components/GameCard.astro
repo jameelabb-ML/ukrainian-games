@@ -1,0 +1,52 @@
+---
+import type { Game } from '../lib/games';
+import { getCategoryName } from '../lib/games';
+import StarRating from './StarRating.astro';
+
+interface Props {
+	game: Game;
+	rank?: number;
+}
+
+const { game, rank } = Astro.props;
+const categoryNames = game.categories.map(getCategoryName);
+const firstCategory = categoryNames[0] ?? '';
+const restCategories = categoryNames.slice(1);
+---
+
+<a class="ug-game-card" href={`/game/${game.slug}/`}>
+	{rank !== undefined && <span class="ug-game-card__rank">{rank}</span>}
+	<img src={game.icon} alt="" loading="lazy" width="54" height="54" />
+	<div class="ug-game-card__body">
+		<h3 class="ug-game-card__name">{game.title}</h3>
+		{(game.developer || firstCategory) && (
+			<p class="ug-game-card__category">
+				{game.developer}
+				{game.developer && categoryNames.length > 0 && <span class="ug-dot">&bull;</span>}
+				{categoryNames.map((c, i) => (
+					<>
+						{c}
+						{i < categoryNames.length - 1 && <span class="ug-dot">&bull;</span>}
+					</>
+				))}
+			</p>
+		)}
+		<p class="ug-game-card__meta">
+			<StarRating rating={game.rating} />
+			<span class="ug-rating-num">{game.rating}</span>
+			<span aria-hidden="true">&middot;</span>
+			<span>{game.size}</span>
+			{restCategories.length > 0 && (
+				<span class="ug-game-card__meta-extra">
+					<span class="ug-dot">&bull;</span>
+					{restCategories.map((c, i) => (
+						<>
+							{c}
+							{i < restCategories.length - 1 && <span class="ug-dot">&bull;</span>}
+						</>
+					))}
+				</span>
+			)}
+		</p>
+	</div>
+</a>

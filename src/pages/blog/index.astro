@@ -1,0 +1,26 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { posts } from '../../lib/blog';
+---
+
+<Layout
+	title="Blog"
+	description="News, guides, and game spotlights from Ukrainian Games."
+	path="/blog/"
+>
+	<main class="ug-container ug-home">
+		<div class="ug-home__section">
+			<div class="ug-post-grid" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));gap:0.75rem;">
+				{posts.length > 0 ? posts.map((post) => (
+					<a href={`/blog/${post.slug}/`} style="text-decoration:none;color:var(--ug-foreground);display:flex;flex-direction:column;gap:0.5em;">
+						<img src={post.thumbnail} alt="" loading="lazy" style="border-radius:0.75rem;border:1px solid var(--ug-border);aspect-ratio:16/9;object-fit:cover;" />
+						<h3 style="margin:0;font-size:1rem;">{post.title}</h3>
+						<p style="margin:0;font-size:0.875rem;color:var(--ug-foreground-muted);">{post.excerpt}</p>
+					</a>
+				)) : (
+					<p>No posts yet. Check back soon.</p>
+				)}
+			</div>
+		</div>
+	</main>
+</Layout>

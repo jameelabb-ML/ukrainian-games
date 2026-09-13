@@ -1,0 +1,38 @@
+[
+  {
+    "slug": "action",
+    "name": "Action",
+    "description": "Fast-paced games built around combat, reflexes, and quick decisions.",
+    "symbol": "action"
+  },
+  {
+    "slug": "shooter",
+    "name": "Shooter",
+    "description": "Aim, shoot, survive — from tanks to snipers to zombies.",
+    "symbol": "shooter"
+  },
+  {
+    "slug": "casual",
+    "name": "Casual",
+    "description": "Easy to pick up, fun in short bursts.",
+    "symbol": "casual"
+  },
+  {
+    "slug": "puzzle",
+    "name": "Puzzle",
+    "description": "Match, solve, and think your way through levels.",
+    "symbol": "puzzle"
+  },
+  {
+    "slug": "racing",
+    "name": "Racing",
+    "description": "Speed, drifting, and off-road adventure.",
+    "symbol": "racing"
+  },
+  {
+    "slug": "horror",
+    "name": "Horror",
+    "description": "Survive the scares.",
+    "symbol": "horror"
+  }
+]

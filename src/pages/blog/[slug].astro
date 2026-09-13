@@ -1,0 +1,33 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { posts } from '../../lib/blog';
+import { articleJsonLd } from '../../lib/seo';
+import { renderTextWithLinks } from '../../lib/text';
+
+export function getStaticPaths() {
+	return posts.map((post) => ({
+		params: { slug: post.slug },
+		props: { post },
+	}));
+}
+
+const { post } = Astro.props;
+const paragraphs = post.content.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+---
+
+<Layout
+	title={post.title}
+	description={post.excerpt}
+	image={post.thumbnail}
+	path={`/blog/${post.slug}/`}
+	jsonLd={articleJsonLd(post)}
+>
+	<main class="ug-container ug-home">
+		<div class="ug-home__section" style="max-width:42rem;">
+			<img src={post.thumbnail} alt="" style="width:100%;border-radius:0.75rem;border:1px solid var(--ug-border);aspect-ratio:16/9;object-fit:cover;margin-bottom:1.5rem;" />
+			<h1>{post.title}</h1>
+			<p style="color:var(--ug-foreground-muted);font-size:0.85rem;">{new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+			{paragraphs.map((p) => <p class="ug-description-text" set:html={renderTextWithLinks(p)} />)}
+		</div>
+	</main>
+</Layout>

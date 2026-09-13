@@ -1,0 +1,26 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import CategorySymbol from '../../components/CategorySymbol.astro';
+import { categories, getGamesByCategory } from '../../lib/games';
+
+const nonEmptyCategories = categories.filter((c) => getGamesByCategory(c.slug).length > 0);
+---
+
+<Layout
+	title="Categories"
+	description="Browse Android games by category — action, shooter, casual, puzzle, racing, and more."
+	path="/categories/"
+>
+	<main class="ug-container ug-home">
+		<div class="ug-home__section">
+			<div class="ug-category-grid">
+				{nonEmptyCategories.map((cat) => (
+					<a class="ug-category-card" href={`/category/${cat.slug}/`}>
+						<span class="ug-category-card__symbol"><CategorySymbol symbol={cat.symbol} /></span>
+						<h3 class="ug-category-card__name">{cat.name}</h3>
+					</a>
+				))}
+			</div>
+		</div>
+	</main>
+</Layout>

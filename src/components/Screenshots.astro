@@ -1,0 +1,87 @@
+---
+// Renders however many screenshots are in game.screenshots — add as few
+// or as many URLs as you want in games.json, this lays them out
+// automatically with no changes needed here.
+interface Props {
+	screenshots: string[];
+	gameTitle: string;
+}
+
+const { screenshots, gameTitle } = Astro.props;
+---
+
+{screenshots.length > 0 && (
+	<section>
+		<h2 class="ug-section-title">Screenshots</h2>
+		<div class="ug-screenshot-wrap">
+			<div class="ug-screenshot-row" id="ug-screenshot-row">
+				{screenshots.map((src, i) => (
+					<img src={src} alt={`${gameTitle} screenshot ${i + 1}`} loading="lazy" class="ug-screenshot-thumb" tabindex="0" role="button" />
+				))}
+			</div>
+			{screenshots.length > 1 && (
+				<>
+					<button type="button" class="ug-screenshot-arrow ug-screenshot-arrow--prev" aria-label="Previous screenshot">&lsaquo;</button>
+					<button type="button" class="ug-screenshot-arrow ug-screenshot-arrow--next" aria-label="Next screenshot">&rsaquo;</button>
+				</>
+			)}
+		</div>
+		<div id="ug-lightbox" class="ug-lightbox" role="dialog" aria-modal="true" aria-hidden="true">
+			<button type="button" class="ug-lightbox-close" aria-label="Close">&times;</button>
+			<img id="ug-lightbox-img" src="" alt="" />
+		</div>
+	</section>
+)}
+
+<script>
+	document.addEventListener('DOMContentLoaded', function () {
+		const screenshotRow = document.getElementById('ug-screenshot-row');
+		const prevArrow = document.querySelector('.ug-screenshot-arrow--prev');
+		const nextArrow = document.querySelector('.ug-screenshot-arrow--next');
+		if (screenshotRow && prevArrow && nextArrow) {
+			const scrollAmount = () => {
+				const img = screenshotRow.querySelector('img');
+				return img ? img.clientWidth + 12 : 200;
+			};
+			prevArrow.addEventListener('click', () => screenshotRow.scrollBy({ left: -scrollAmount(), behavior: 'smooth' }));
+			nextArrow.addEventListener('click', () => screenshotRow.scrollBy({ left: scrollAmount(), behavior: 'smooth' }));
+		}
+
+		const lightbox = document.getElementById('ug-lightbox');
+		const lightboxImg = document.getElementById('ug-lightbox-img');
+		const lightboxClose = document.querySelector('.ug-lightbox-close');
+		const thumbs = document.querySelectorAll('.ug-screenshot-thumb');
+
+		function openLightbox(src, alt) {
+			if (!(lightboxImg instanceof HTMLImageElement) || !lightbox) return;
+			lightboxImg.src = src;
+			lightboxImg.alt = alt || '';
+			lightbox.classList.add('is-open');
+			lightbox.setAttribute('aria-hidden', 'false');
+		}
+		function closeLightbox() {
+			if (!(lightboxImg instanceof HTMLImageElement) || !lightbox) return;
+			lightbox.classList.remove('is-open');
+			lightbox.setAttribute('aria-hidden', 'true');
+			lightboxImg.src = '';
+		}
+
+		thumbs.forEach((thumb) => {
+			if (!(thumb instanceof HTMLImageElement)) return;
+			thumb.addEventListener('click', () => openLightbox(thumb.src, thumb.alt));
+			thumb.addEventListener('keydown', (e) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					e.preventDefault();
+					openLightbox(thumb.src, thumb.alt);
+				}
+			});
+		});
+		if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);
+		if (lightbox) {
+			lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
+		}
+		document.addEventListener('keydown', (e) => {
+			if (e.key === 'Escape' && lightbox && lightbox.classList.contains('is-open')) closeLightbox();
+		});
+	});
+</script>

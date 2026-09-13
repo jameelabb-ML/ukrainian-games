@@ -1,0 +1,57 @@
+---
+import { formatCount } from '../lib/games';
+
+interface Props {
+	gameReviews: { name: string; rating: number; text: string; date: string }[];
+	rating: number;
+	ratingCount: number;
+	ratingBreakdown: { 5: number; 4: number; 3: number; 2: number; 1: number };
+}
+
+const { gameReviews, rating, ratingCount, ratingBreakdown } = Astro.props;
+const stars = [5, 4, 3, 2, 1] as const;
+const maxBreakdown = Math.max(1, ...stars.map((s) => ratingBreakdown[s] || 0));
+
+function initials(name: string) {
+	return name.trim().slice(0, 1).toUpperCase();
+}
+---
+
+<section>
+	<h2 class="ug-section-title">Ratings and reviews</h2>
+	<div class="ug-rating-breakdown">
+		<div class="ug-rating-big">
+			<span class="ug-rating-big__num">{rating.toFixed(1)}</span>
+			<span class="ug-rating-big__stars">{'★'.repeat(Math.round(rating))}{'☆'.repeat(5 - Math.round(rating))}</span>
+			<span class="ug-rating-big__count">{formatCount(ratingCount)} reviews</span>
+		</div>
+		<div class="ug-rating-bars">
+			{stars.map((s) => (
+				<div class="ug-rating-bar-row">
+					<span>{s}</span>
+					<span class="ug-bar-track"><span class="ug-bar-fill" style={`width: ${Math.round(((ratingBreakdown[s] || 0) / maxBreakdown) * 100)}%`}></span></span>
+				</div>
+			))}
+		</div>
+	</div>
+
+	{gameReviews.length === 0 ? (
+		<p class="ug-stat__label" style="margin-top:1.5rem;">No reviews yet for this game.</p>
+	) : (
+		<ul class="ug-review-list">
+			{gameReviews.map((r) => (
+				<li class="ug-review-card">
+					<span class="ug-review-avatar">{initials(r.name)}</span>
+					<div class="ug-review-card__body">
+						<div class="ug-review-card__head">
+							<span class="ug-review-card__name">{r.name}</span>
+							<span class="ug-review-card__rating">&#9733; {r.rating}</span>
+						</div>
+						<p class="ug-review-card__text">{r.text}</p>
+						<time class="ug-review-card__date">{new Date(r.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</time>
+					</div>
+				</li>
+			))}
+		</ul>
+	)}
+</section>

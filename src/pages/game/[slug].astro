@@ -1,0 +1,203 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import GameCard from '../../components/GameCard.astro';
+import StarRating from '../../components/StarRating.astro';
+import Screenshots from '../../components/Screenshots.astro';
+import Reviews from '../../components/Reviews.astro';
+import { games, getCategoryName, formatCount } from '../../lib/games';
+import { getReviewsForGame } from '../../lib/reviews';
+import { gameJsonLd, truncateDescription } from '../../lib/seo';
+import { renderTextWithLinks } from '../../lib/text';
+
+export function getStaticPaths() {
+	return games.map((game) => ({
+		params: { slug: game.slug },
+		props: { game },
+	}));
+}
+
+const { game } = Astro.props;
+const paragraphs = game.long_description.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+const gameReviews = getReviewsForGame(game.slug);
+
+const suggested = games
+	.filter((g) => g.slug !== game.slug && g.categories.some((c) => game.categories.includes(c)))
+	.slice(0, 4);
+---
+
+<Layout
+	title={game.title}
+	description={truncateDescription(game.short_description)}
+	image={game.icon}
+	path={`/game/${game.slug}/`}
+	jsonLd={gameJsonLd(game)}
+>
+	<main class="ug-container ug-game">
+		<div class="ug-game-hero">
+			<div class="ug-game-header">
+				<img class="ug-game-header__icon" src={game.icon} alt="" width="96" height="96" />
+				<div class="ug-game-header__body">
+					<h1>{game.title}</h1>
+					<p class="ug-game-header__developer">{game.developer}</p>
+				</div>
+			</div>
+
+			<div class="ug-stats-row">
+				<div class="ug-stat">
+					<span class="ug-stat__value"><StarRating rating={game.rating} /> {game.rating.toFixed(1)}</span>
+					<span class="ug-stat__label">{formatCount(game.rating_count)} reviews</span>
+				</div>
+				<div class="ug-stat">
+					<span class="ug-stat__value">{game.content_rating}</span>
+					<span class="ug-stat__label">Content rating</span>
+				</div>
+				<div class="ug-stat">
+					<span class="ug-stat__value">{formatCount(game.download_count)}+</span>
+					<span class="ug-stat__label">Downloads</span>
+				</div>
+			</div>
+
+			<a class="ug-btn ug-btn--primary" href={game.apk_url} download>Download APK</a>
+		</div>
+
+		<Screenshots screenshots={game.screenshots} gameTitle={game.title} />
+
+		<section>
+			<h2 class="ug-section-title">About this game</h2>
+			<p class="ug-description-text">{game.short_description}</p>
+			<button type="button" id="ug-show-more-btn" class="ug-link-more">Show more</button>
+
+			<div id="ug-more-content" style="display:none;">
+				{paragraphs.map((p) => <p class="ug-description-text" set:html={renderTextWithLinks(p)} />)}
+
+				<div class="ug-info-card">
+					<div class="ug-info-row"><span>Version</span><span>{game.version}</span></div>
+					<div class="ug-info-row"><span>Updated on</span><span>{game.updated}</span></div>
+					{game.android_version && <div class="ug-info-row"><span>Requires Android</span><span>{game.android_version}</span></div>}
+					<div class="ug-info-row"><span>Size</span><span>{game.size}</span></div>
+					<div class="ug-info-row"><span>Offered by</span><span>{game.developer}</span></div>
+				</div>
+
+				<button type="button" id="ug-show-less-btn" class="ug-link-more">Show less</button>
+			</div>
+
+			{game.categories.length > 0 && (
+				<ul class="ug-tags">
+					{game.categories.map((slug) => (
+						<li><a href={`/category/${slug}/`}>{getCategoryName(slug)}</a></li>
+					))}
+				</ul>
+			)}
+		</section>
+
+		<Reviews gameReviews={gameReviews} rating={game.rating} ratingCount={game.rating_count} ratingBreakdown={game.rating_breakdown} />
+
+		<div class="ug-review-form-wrap">
+			<p id="ug-review-status" style="display:none;font-size:0.9rem;"></p>
+			<button type="button" id="ug-write-review-btn" class="ug-btn ug-btn--primary">Write a review</button>
+			<div id="ug-review-form-fields" style="display:none;">
+				<form id="ug-review-form" class="ug-review-form">
+					<input type="hidden" name="game_slug" value={game.slug} />
+					<div class="ug-form-honeypot"><label>Website<input type="text" name="website" tabindex="-1" autocomplete="off" /></label></div>
+					<div class="ug-form-row">
+						<label for="ug_review_name">Your name <span class="ug-required">*</span></label>
+						<input type="text" id="ug_review_name" name="name" maxlength="60" required />
+					</div>
+					<div class="ug-form-row">
+						<label for="ug_review_rating">Rating <span class="ug-required">*</span></label>
+						<select id="ug_review_rating" name="rating" required>
+							<option value="">Select a rating</option>
+							<option value="5">★★★★★ Excellent</option>
+							<option value="4">★★★★ Good</option>
+							<option value="3">★★★ Average</option>
+							<option value="2">★★ Poor</option>
+							<option value="1">★ Terrible</option>
+						</select>
+					</div>
+					<div class="ug-form-row">
+						<label for="ug_review_text">Review</label>
+						<textarea id="ug_review_text" name="text" rows="4" maxlength="1000"></textarea>
+					</div>
+					<button type="submit" class="ug-btn ug-btn--primary">Submit review</button>
+				</form>
+			</div>
+		</div>
+
+		{suggested.length > 0 && (
+			<section>
+				<h2 class="ug-section-title">Suggested for you</h2>
+				<div class="ug-game-grid">
+					{suggested.map((g) => <GameCard game={g} />)}
+				</div>
+			</section>
+		)}
+	</main>
+</Layout>
+
+<script>
+	document.addEventListener('DOMContentLoaded', function () {
+		const btn = document.getElementById('ug-show-more-btn');
+		const lessBtn = document.getElementById('ug-show-less-btn');
+		const content = document.getElementById('ug-more-content');
+		if (!btn || !content) return;
+
+		btn.addEventListener('click', function () {
+			content.style.display = 'block';
+			btn.style.display = 'none';
+		});
+		if (lessBtn) {
+			lessBtn.addEventListener('click', function () {
+				content.style.display = 'none';
+				btn.style.display = 'inline-block';
+			});
+		}
+
+		const writeReviewBtn = document.getElementById('ug-write-review-btn');
+		const reviewFormFields = document.getElementById('ug-review-form-fields');
+		if (writeReviewBtn && reviewFormFields) {
+			writeReviewBtn.addEventListener('click', function () {
+				reviewFormFields.style.display = 'block';
+				writeReviewBtn.style.display = 'none';
+			});
+		}
+
+		const reviewForm = document.getElementById('ug-review-form');
+		const statusEl = document.getElementById('ug-review-status');
+		if (reviewForm && statusEl) {
+			reviewForm.addEventListener('submit', async function (e) {
+				e.preventDefault();
+				const formData = new FormData(reviewForm);
+				// Honeypot: real visitors never fill this hidden field.
+				if (formData.get('website')) return;
+
+				const submitBtn = reviewForm.querySelector('button[type="submit"]');
+				if (submitBtn instanceof HTMLButtonElement) submitBtn.disabled = true;
+
+				try {
+					const res = await fetch('/api/submit-review', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({
+							game_slug: formData.get('game_slug'),
+							name: formData.get('name'),
+							rating: formData.get('rating'),
+							text: formData.get('text'),
+						}),
+					});
+					if (!res.ok) throw new Error('Request failed');
+					statusEl.textContent = 'Thanks! Your review has been submitted and will appear once approved.';
+					statusEl.style.color = '#16794f';
+					statusEl.style.display = 'block';
+					reviewForm.reset();
+					if (reviewFormFields instanceof HTMLElement) reviewFormFields.style.display = 'none';
+				} catch (err) {
+					statusEl.textContent = 'Sorry, something went wrong submitting your review. Please try again.';
+					statusEl.style.color = 'var(--ug-danger)';
+					statusEl.style.display = 'block';
+				} finally {
+					if (submitBtn instanceof HTMLButtonElement) submitBtn.disabled = false;
+				}
+			});
+		}
+	});
+</script>

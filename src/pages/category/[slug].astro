@@ -1,0 +1,37 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import GameCard from '../../components/GameCard.astro';
+import { categories, getGamesByCategory } from '../../lib/games';
+
+export function getStaticPaths() {
+	return categories.map((cat) => ({
+		params: { slug: cat.slug },
+		props: { category: cat },
+	}));
+}
+
+const { category } = Astro.props;
+const gamesInCategory = getGamesByCategory(category.slug);
+---
+
+<Layout
+	title={`${category.name} Games`}
+	description={category.description || `Browse the best ${category.name} games and download free APKs.`}
+	path={`/category/${category.slug}/`}
+>
+	<main class="ug-container ug-archive">
+		<header class="ug-archive__header">
+			<h1>{category.name} Games</h1>
+			{category.description && <p>{category.description}</p>}
+			<p>{gamesInCategory.length} games</p>
+		</header>
+
+		<div class="ug-game-grid">
+			{gamesInCategory.length > 0 ? (
+				gamesInCategory.map((game, i) => <GameCard game={game} rank={i + 1} />)
+			) : (
+				<p>No games published in this category yet.</p>
+			)}
+		</div>
+	</main>
+</Layout>

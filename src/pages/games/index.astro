@@ -1,0 +1,22 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import GameCard from '../../components/GameCard.astro';
+import { games } from '../../lib/games';
+---
+
+<Layout
+	title="All Games"
+	description="Browse every game available to download."
+	path="/games/"
+>
+	<main class="ug-container ug-archive">
+		<header class="ug-archive__header">
+			<h1>All Games</h1>
+			<p>{games.length} games</p>
+		</header>
+
+		<div class="ug-game-grid">
+			{games.map((game, i) => <GameCard game={game} rank={i + 1} />)}
+		</div>
+	</main>
+</Layout>

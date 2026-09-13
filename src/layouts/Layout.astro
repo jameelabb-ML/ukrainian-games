@@ -1,0 +1,102 @@
+---
+import '../styles/global.css';
+import { absoluteUrl, SITE_NAME } from '../lib/seo';
+
+interface Props {
+	title: string;
+	description: string;
+	image?: string;
+	path: string;
+	jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const { title, description, image, path, jsonLd } = Astro.props;
+const canonical = absoluteUrl(path);
+const ogImage = image ?? absoluteUrl('/og-default.png');
+const pageTitle = title === SITE_NAME ? title : `${title} - ${SITE_NAME}`;
+
+// WordPress marks the current page's nav link with an "is-active" class
+// server-side per request; a static site has to decide this at build
+// time per page instead, by comparing this page's own path.
+const isTrendingActive = path === '/';
+const isCategoriesActive = path === '/categories/' || path.startsWith('/category/');
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>{pageTitle}</title>
+	<meta name="description" content={description} />
+	<link rel="canonical" href={canonical} />
+
+	<meta property="og:type" content="website" />
+	<meta property="og:site_name" content={SITE_NAME} />
+	<meta property="og:title" content={pageTitle} />
+	<meta property="og:description" content={description} />
+	<meta property="og:url" content={canonical} />
+	<meta property="og:image" content={ogImage} />
+
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:title" content={pageTitle} />
+	<meta name="twitter:description" content={description} />
+	<meta name="twitter:image" content={ogImage} />
+
+	<link rel="icon" href="/favicon.png" type="image/png" />
+	<link rel="apple-touch-icon" href="/favicon.png" />
+
+	<link rel="preconnect" href="https://ukrainiangames.com" crossorigin />
+	<link rel="dns-prefetch" href="https://ukrainiangames.com" />
+
+	{jsonLd && (
+		<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+	)}
+</head>
+<body>
+	<header class="ug-site-header">
+		<div class="ug-container ug-site-header__inner">
+			<div class="ug-site-brand">
+				<p class="ug-site-title">
+					<a href="/">
+						<img class="ug-logo-icon" src="/logo.png" alt={SITE_NAME} />
+						{SITE_NAME}
+					</a>
+				</p>
+			</div>
+			<nav class="ug-site-nav">
+				<a href="/" class={isTrendingActive ? 'is-active' : ''}>Trending</a>
+				<a href="/categories/" class={isCategoriesActive ? 'is-active' : ''}>Categories</a>
+			</nav>
+			<div class="ug-header-actions">
+				<a class="ug-btn-icon" href="/search/" aria-label="Search" title="Search">
+					<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+				</a>
+			</div>
+		</div>
+	</header>
+
+	<slot />
+
+	<footer class="ug-site-footer">
+		<div class="ug-container">
+			<div class="ug-footer-grid">
+				<div class="ug-footer-brand">
+					<p class="ug-site-title"><a href="/"><img class="ug-logo-icon" src="/logo.png" alt={SITE_NAME} />{SITE_NAME}</a></p>
+				</div>
+				<nav class="ug-footer-nav">
+					<a href="/">Trending</a>
+					<a href="/categories/">Categories</a>
+					<a href="/blog/">Blog</a>
+					<a href="/contact/">Contact</a>
+					<a href="/privacy-policy/">Privacy Policy</a>
+					<a href="/terms/">Terms of Use</a>
+				</nav>
+			</div>
+			<div class="ug-footer-bottom">
+				&copy; {new Date().getFullYear()} {SITE_NAME}. All rights reserved.
+			</div>
+		</div>
+	</footer>
+</body>
+</html>

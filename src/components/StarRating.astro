@@ -1,0 +1,20 @@
+---
+// Mirrors ug_star_rating_icon() from the WordPress theme exactly: an
+// outlined star with a clipped, color-filled overlay whose width is the
+// rating expressed as a percentage — a true partial-fill star, not a
+// plain "★" character.
+interface Props {
+	rating: number; // 0-5
+}
+
+const { rating } = Astro.props;
+const pct = Math.max(0, Math.min(100, 15 + (rating / 5) * 70));
+const STAR_PATH = 'M12 2 L14.25 8.91 L21.51 8.91 L15.63 13.18 L17.88 20.09 L12 15.82 L6.12 20.09 L8.37 13.18 L2.49 8.91 L9.76 8.91 Z';
+---
+
+<span class="ug-star-wrap">
+	<svg class="ug-star-track" viewBox="0 0 24 24" width="14" height="14"><path d={STAR_PATH} fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path></svg>
+	<span class="ug-star-fill-clip" style={`width: ${pct}%;`}>
+		<svg viewBox="0 0 24 24" width="14" height="14"><path d={STAR_PATH} fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path></svg>
+	</span>
+</span>

@@ -1,0 +1,18 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import SearchBox from '../../components/SearchBox';
+import { games } from '../../lib/games';
+---
+
+<Layout
+	title="Search"
+	description="Search for games by name, developer, or category."
+	path="/search/"
+>
+	<main class="ug-container ug-home">
+		<div class="ug-home__section">
+			<h1>Search</h1>
+			<SearchBox games={games} client:load />
+		</div>
+	</main>
+</Layout>
